@@ -8,7 +8,7 @@ import folium
 from streamlit_folium import st_folium
 from geopy.geocoders import Nominatim
 
-# === Streamlit Page Config ===
+# --> Streamlit Page Config <--
 st.set_page_config(page_title="Wild Flame Watcher")
 st.markdown(
     "<h1 style='text-align: center; color:#cbcbcb; font-size: 43px; font-family: Geneva;'>Forest Fire Risk Predictor</h1>",
@@ -20,7 +20,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# === Load Model & Features ===
+# --> Load Model & Features <---
 try:
     model = joblib.load("random_forest_fire_model.pkl")
     feature_cols = joblib.load("feature_columns.pkl")
@@ -28,7 +28,7 @@ except Exception as e:
     st.error(f"Error loading model or feature columns: {e}")
     st.stop()
 
-# === Session State Initialization ===
+# --> Session State Initialization <--
 if "user_input" not in st.session_state:
     st.session_state.user_input = {feature: "" for feature in feature_cols}
 if "predicted_location" not in st.session_state:
@@ -41,7 +41,7 @@ if "fire_intensity_level" not in st.session_state:
     st.session_state.fire_intensity_level = ""
 
 
-# === Collect User Input ===
+# --> Collect User Input <--
 st.markdown(
     "<h4 style='text-align: left; color:#e2e5de; font-weight: 500; margin-top: 20px;'>Fill in Current Conditions</h4>",
     unsafe_allow_html=True
@@ -68,7 +68,7 @@ for feature in feature_cols:
                 st.warning(f"⚠️ Please enter a valid number for {feature}")
                 input_valid = False
 
-# === Predict Button ===
+# --> Predict Button <--
 if st.button("Predict Fire Risk"):
     user_input_filled = all(st.session_state.user_input[feat] != "" for feat in feature_cols)
 
@@ -87,7 +87,7 @@ if st.button("Predict Fire Risk"):
         prediction = str(model.predict(input_df)[0])
         st.session_state.prediction_result = prediction
 
-        # === Fire Intensity Logic (Only if fire is predicted) ===
+        # --> Fire Intensity Logic (Only if fire is predicted) <--
         if prediction.lower() == "fire":
             ffmc = input_data.get("FFMC", 0)
             dmc = input_data.get("DMC", 0)
@@ -97,7 +97,7 @@ if st.button("Predict Fire Risk"):
             rh = input_data.get("RH", 100)
             wind = input_data.get("wind", 0)
 
-            # Simple logic: tweak thresholds as needed
+            # --> Simple logic: tweak thresholds as needed <--
             score = (
                 0.3 * ffmc +
                 0.2 * dmc +
@@ -117,7 +117,7 @@ if st.button("Predict Fire Risk"):
 
             st.session_state.fire_intensity_level = intensity
 
-        # === Get Location from Lat/Lon ===
+        # --> Get Location from Lat/Lon <--
         lat = input_data.get("latitude", 20.5937)
         lon = input_data.get("longitude", 78.9629)
         st.session_state.predicted_location = [lat, lon]
@@ -129,14 +129,14 @@ if st.button("Predict Fire Risk"):
         except:
             st.session_state.location_name = "Unknown location"
 
-        # === Show Prediction Result ===
+        # --> Show Prediction Result <--
         if prediction.lower() == "fire":
             st.error(" High Fire Risk Detected!")
             st.info(f" **Fire Intensity Level:** {st.session_state.fire_intensity_level}")
         else:
             st.success(" No Fire Expected.")
 
-# === Display Map After Prediction ===
+# --> Display Map After Prediction <--
 if st.session_state.predicted_location:
     st.subheader(" Predicted Fire Location Map")
     location = st.session_state.predicted_location
@@ -149,7 +149,7 @@ if st.session_state.predicted_location:
     if st.session_state.fire_intensity_level:
         st.markdown(f"**⚡ Fire Intensity:** {st.session_state.fire_intensity_level}")
 
-# === Reset Inputs ===
+# --> Reset Inputs <--
 if st.button("Reset Inputs"):
     st.session_state.user_input = {feature: "" for feature in feature_cols}
     st.session_state.predicted_location = None
@@ -158,7 +158,7 @@ if st.button("Reset Inputs"):
     st.session_state.fire_intensity_level = ""
     st.rerun()
 
-# === Feature Importance Plot ===
+# --> Feature Importance Plot <--
 if st.checkbox("Show Feature Importance"):
     st.subheader("Feature Importance (Random Forest)")
     importances = model.feature_importances_
@@ -170,7 +170,7 @@ if st.checkbox("Show Feature Importance"):
     ax.set_ylabel("Features")
     st.pyplot(fig)
 
-# === Historical Trends ===
+# --> Historical Trends <--
 if st.checkbox("Show Past Fire Trends"):
     st.subheader("Past Fire Records Over Years")
     try:
