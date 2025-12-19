@@ -43,3 +43,4 @@ This project is a **machine learning-powered web application** built with **Stre
 git clone https://github.com/yourusername/forest-fire-predictor.git
 cd forest-fire-predictor
 pip install -r requirements.txt
+```
